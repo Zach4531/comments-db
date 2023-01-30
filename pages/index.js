@@ -1,4 +1,6 @@
 import Head from 'next/head';
+
+import supabase from '../utils/supabase';
 // import styles from '../styles/Home.module.css'
 import { Fragment, useEffect, useState } from 'react';
 import data from '../public/data.json';
@@ -26,6 +28,23 @@ export default function Home() {
     setComments(local?.comments || data.comments);
     console.log('ad');
   }, []);
+
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     const { data: commentData, error: commentError } = await supabase
+  //       .from('comments')
+  //       .select();
+
+  //     const { data: userData, error: userError } = await supabase
+  //       .from('users')
+  //       .select();
+
+  //     setComments(commentData);
+  //     setUser(userData);
+  //   };
+
+  //   getData();
+  // }, []);
 
   function updateData(data) {
     setComments(data);
