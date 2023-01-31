@@ -15,6 +15,8 @@ export default function CommentHeader({
     setVisibility();
   }
 
+  createdAt = new Date(createdAt);
+
   return (
     <CardHeaderStyled>
       <CardUserStyled>
@@ -23,7 +25,7 @@ export default function CommentHeader({
           {username}
           {isOwner && <span>you</span>}
         </p>
-        <p className="date">{createdAt}</p>
+        <p className="date">{createdAt.toLocaleString()}</p>
       </CardUserStyled>
       <CardButtonsStyled>
         {isOwner ? (

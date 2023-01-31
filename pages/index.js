@@ -1,7 +1,4 @@
-import Head from 'next/head';
-
 import supabase from '../utils/supabase';
-// import styles from '../styles/Home.module.css'
 import { Fragment, useEffect, useState } from 'react';
 import data from '../public/data.json';
 
@@ -12,35 +9,45 @@ import CommentForm from '../components/CommentForm';
 import Comment from '../components/Comment';
 import Alert from '../components/Alert';
 
-export default function Home() {
-  const [user, setUser] = useState();
-  const [comments, setComments] = useState();
+export async function getServerSideProps() {
+  let { data: comments } = await supabase
+    .from('comments')
+    .select('*, replies(*, users(username, image)), users(username, image)');
+
+  return {
+    props: {
+      comments,
+    },
+  };
+}
+
+export default function Home({ comments = {} }) {
+  const [user, setUser] = useState('juliusomo');
+  // const [comments, setComments] = useState();
   const [alert, setAlert] = useState({});
 
-  useEffect(() => {
-    const local = JSON.parse(localStorage.getItem('frontEndComments'));
+  // useEffect(() => {
+  //   const local = JSON.parse(localStorage.getItem('frontEndComments'));
 
-    if (!local) {
-      localStorage.setItem('frontEndComments', JSON.stringify(data));
-    }
+  //   if (!local) {
+  //     localStorage.setItem('frontEndComments', JSON.stringify(data));
+  //   }
 
-    setUser(local?.currentUser || data.currentUser);
-    setComments(local?.comments || data.comments);
-    console.log('ad');
-  }, []);
+  //   setUser(local?.currentUser || data.currentUser);
+  //   setComments(local?.comments || data.comments);
+  //   console.log('ad');
+  // }, []);
 
   // useEffect(() => {
   //   const getData = async () => {
   //     const { data: commentData, error: commentError } = await supabase
   //       .from('comments')
-  //       .select();
-
-  //     const { data: userData, error: userError } = await supabase
-  //       .from('users')
-  //       .select();
+  //       .select(
+  //         '*, replies(*, users(username, image)), users(username, image)'
+  //       );
 
   //     setComments(commentData);
-  //     setUser(userData);
+  //     setUser('juliusomo');
   //   };
 
   //   getData();
