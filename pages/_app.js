@@ -1,7 +1,6 @@
 import '../styles/globals.css';
 import { useState } from 'react';
 import UserLogin from '../components/UserLogin';
-import Head from 'next/head';
 import styled from 'styled-components';
 
 function MyApp({ Component, pageProps }) {
@@ -12,12 +11,6 @@ function MyApp({ Component, pageProps }) {
   }
   return (
     <>
-      <Head>
-        <script
-          src="https://kit.fontawesome.com/35671f3e68.js"
-          crossorigin="anonymous"
-        ></script>
-      </Head>
       {login ? (
         <Component {...pageProps} />
       ) : (
