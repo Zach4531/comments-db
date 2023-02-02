@@ -10,20 +10,22 @@ import Comment from '../components/Comment';
 import Alert from '../components/Alert';
 
 export async function getServerSideProps() {
-  let { data: comments } = await supabase
+  let { data: allComments } = await supabase
     .from('comments')
-    .select('*, replies(*, users(username, image)), users(username, image)');
+    .select(
+      '*, replies(*, user:users(username, image)), user:users(username, image)'
+    );
 
   return {
     props: {
-      comments,
+      allComments,
     },
   };
 }
 
-export default function Home({ comments = {} }) {
-  const [user, setUser] = useState('juliusomo');
-  // const [comments, setComments] = useState();
+export default function Home({ allComments }) {
+  const [currentUser, setCurrentUser] = useState('juliusomo');
+  const [comments, setComments] = useState(allComments);
   const [alert, setAlert] = useState({});
 
   // useEffect(() => {
@@ -53,12 +55,13 @@ export default function Home({ comments = {} }) {
   //   getData();
   // }, []);
 
-  function updateData(data) {
+  async function fetchComments() {
+    const { data } = await supabase
+      .from('comments')
+      .select(
+        '*, replies(*, user:users(username, image)), user:users(username, image)'
+      );
     setComments(data);
-    localStorage.setItem(
-      'frontEndComments',
-      JSON.stringify({ currentUser: user, comments: data })
-    );
   }
 
   function showAlert(text) {
@@ -68,105 +71,164 @@ export default function Home({ comments = {} }) {
     }, '4000');
   }
 
-  function addComment(content) {
-    const newComment = {
-      id: Math.floor(Math.random() * 1000) + 5,
-      content: content,
-      createdAt: '3 weeks ago',
-      score: 0,
-      username: user.username,
-      replies: [],
-    };
-    const commentsUpdated = [...comments, newComment];
-    updateData(commentsUpdated);
+  async function addComment(content) {
+    const { data, error } = await supabase
+      .from('comments')
+      .insert({ content: content, user_id: 1 });
+
+    fetchComments();
   }
 
-  function addReply(content, id, replyingTo) {
-    const newReply = {
-      id: Math.floor(Math.random() * 1000) + 5,
+  async function addReply(content, id, replyingTo) {
+    const { data, error } = await supabase.from('replies').insert({
       content: content,
-      createdAt: '3 weeks ago',
-      score: 0,
+      user_id: 1,
+      comment_id: id,
       replyingTo: replyingTo,
-      username: user.username,
-    };
-
-    const commentsUpdated = comments.map((comment) => {
-      if (comment.id === id) {
-        comment.replies = [...comment.replies, newReply];
-      }
-      return comment;
     });
-    updateData(commentsUpdated);
+
+    fetchComments();
+  }
+  async function editReply(content, id, parentId) {
+    const { data, error } = await supabase
+      .from('replies')
+      .update({
+        content: content,
+      })
+      .eq('id', id);
+
+    fetchComments();
+  }
+  async function deleteReply(id, parentId) {
+    const { repliesData, repliesError } = await supabase
+      .from('replies')
+      .delete()
+      .eq('id', id);
+
+    fetchComments();
+  }
+  async function editComment(content, id) {
+    const { data, error } = await supabase
+      .from('comments')
+      .update({
+        content: content,
+      })
+      .eq('id', id);
+
+    fetchComments();
+  }
+  async function deleteComment(id) {
+    const { commentsData, commentsError } = await supabase
+      .from('comments')
+      .delete()
+      .eq('id', id);
+
+    const { repliesData, repliesError } = await supabase
+      .from('replies')
+      .delete()
+      .eq('comment_id', id);
+
+    fetchComments();
   }
 
-  function editComment(content, id) {
-    const commentsUpdated = comments.map((comment) => {
-      if (comment.id === id) {
-        comment.content = content;
-      }
-      return comment;
-    });
-    updateData(commentsUpdated);
-    showAlert('Comment successfully updated!');
-  }
+  // function addComment(content) {
+  //   const newComment = {
+  //     id: Math.floor(Math.random() * 1000) + 5,
+  //     content: content,
+  //     createdAt: '3 weeks ago',
+  //     score: 0,
+  //     username: user.username,
+  //     replies: [],
+  //   };
+  //   const commentsUpdated = [...comments, newComment];
+  //   updateData(commentsUpdated);
+  // }
 
-  function editReply(content, id, parentId) {
-    const commentsUpdated = comments.map((comment) => {
-      if (comment.id === parentId) {
-        if (comment.replies.length > 0) {
-          comment.replies.map((reply) => {
-            if (reply.id === id) {
-              reply.content = content;
-            }
-            return reply;
-          });
-        }
-      }
-      return comment;
-    });
-    updateData(commentsUpdated);
-    showAlert('Comment successfully updated!');
-  }
+  // function addReply(content, id, replyingTo) {
+  //   const newReply = {
+  //     id: Math.floor(Math.random() * 1000) + 5,
+  //     content: content,
+  //     createdAt: '3 weeks ago',
+  //     score: 0,
+  //     replyingTo: replyingTo,
+  //     username: user.username,
+  //   };
 
-  function deleteComment(id) {
-    const commentsUpdated = comments.filter((comment) => {
-      return comment.id !== id;
-    });
-    updateData(commentsUpdated);
-    showAlert('Comment deleted!');
-  }
+  //   const commentsUpdated = comments.map((comment) => {
+  //     if (comment.id === id) {
+  //       comment.replies = [...comment.replies, newReply];
+  //     }
+  //     return comment;
+  //   });
+  //   updateData(commentsUpdated);
+  // }
 
-  function deleteReply(id, parentId) {
-    const commentsUpdated = comments.map((comment) => {
-      if (comment.id === parentId) {
-        if (comment.replies.length > 0) {
-          comment.replies = comment.replies.filter((reply) => {
-            return reply.id !== id;
-          });
-        }
-      }
-      return comment;
-    });
-    updateData(commentsUpdated);
-    showAlert('Comment deleted!');
-  }
+  // function editComment(content, id) {
+  //   const commentsUpdated = comments.map((comment) => {
+  //     if (comment.id === id) {
+  //       comment.content = content;
+  //     }
+  //     return comment;
+  //   });
+  //   updateData(commentsUpdated);
+  //   showAlert('Comment successfully updated!');
+  // }
+
+  // function editReply(content, id, parentId) {
+  //   const commentsUpdated = comments.map((comment) => {
+  //     if (comment.id === parentId) {
+  //       if (comment.replies.length > 0) {
+  //         comment.replies.map((reply) => {
+  //           if (reply.id === id) {
+  //             reply.content = content;
+  //           }
+  //           return reply;
+  //         });
+  //       }
+  //     }
+  //     return comment;
+  //   });
+  //   updateData(commentsUpdated);
+  //   showAlert('Comment successfully updated!');
+  // }
+
+  // function deleteComment(id) {
+  //   const commentsUpdated = comments.filter((comment) => {
+  //     return comment.id !== id;
+  //   });
+  //   updateData(commentsUpdated);
+  //   showAlert('Comment deleted!');
+  // }
+
+  // function deleteReply(id, parentId) {
+  //   const commentsUpdated = comments.map((comment) => {
+  //     if (comment.id === parentId) {
+  //       if (comment.replies.length > 0) {
+  //         comment.replies = comment.replies.filter((reply) => {
+  //           return reply.id !== id;
+  //         });
+  //       }
+  //     }
+  //     return comment;
+  //   });
+  //   updateData(commentsUpdated);
+  //   showAlert('Comment deleted!');
+  // }
 
   return (
-    <UserContext.Provider value={[user, setUser]}>
+    <UserContext.Provider value={[currentUser, setCurrentUser]}>
       {comments && (
         <Wrapper>
           {alert.show && <Alert text={alert.text} />}
           {comments.map((comment) => (
-            <Fragment key={`${comment.id}`}>
-              <Comment
-                key={comment.id}
-                commentData={comment}
-                addReply={addReply}
-                editComment={editComment}
-                deleteComment={deleteComment}
-                parentId={comment.id}
-              />
+            <Comment
+              key={comment.id}
+              commentData={comment}
+              addReply={addReply}
+              editComment={editComment}
+              deleteComment={deleteComment}
+              parentId={comment.id}
+            >
               {comment.replies.length > 0 && (
                 <ReplyWrapperStyled>
                   {comment.replies.map((reply) => (
@@ -180,7 +242,7 @@ export default function Home({ comments = {} }) {
                   ))}
                 </ReplyWrapperStyled>
               )}
-            </Fragment>
+            </Comment>
           ))}
           <CommentForm onSubmission={addComment} type="comment" />
         </Wrapper>

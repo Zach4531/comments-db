@@ -20,12 +20,13 @@ export default function Comment({
   deleteComment,
   deleteReply,
   parentId,
+  children,
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const [isOwned, setIsOwned] = useState(false);
-  const { id, score, username, created_at, content, replyingTo, users } =
+  const { id, score, username, created_at, content, replyingTo, user } =
     commentData;
-  const [user] = useContext(UserContext);
+  const [currentUser] = useContext(UserContext);
   const [modalOpen, setModalOpen] = useState(false);
   const [edit, setEdit] = useState(false);
 
@@ -34,7 +35,7 @@ export default function Comment({
   }
 
   useEffect(() => {
-    setIsOwned(users.username == user);
+    setIsOwned(user.username == currentUser);
   }, []);
 
   function deleteRequest() {
@@ -74,8 +75,8 @@ export default function Comment({
         <Counter score={score} />
         <CommentContentStyled>
           <CommentHeader
-            username={users.username}
-            img={users.image.png}
+            username={user.username}
+            img={user.image.png}
             createdAt={created_at}
             setVisibility={toggleVisibility}
             isOwner={isOwned}
@@ -96,6 +97,7 @@ export default function Comment({
           )}
         </CommentContentStyled>
       </CommentStyled>
+      {children}
       {isVisible && (
         <CommentForm
           type="reply"

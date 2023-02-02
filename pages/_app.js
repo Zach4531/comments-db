@@ -5,7 +5,7 @@ import Head from 'next/head';
 import styled from 'styled-components';
 
 function MyApp({ Component, pageProps }) {
-  const [login, setLogin] = useState(false);
+  const [login, setLogin] = useState(true);
 
   function authenticateUser() {
     setLogin(true);
