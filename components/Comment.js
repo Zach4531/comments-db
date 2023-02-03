@@ -19,13 +19,11 @@ export default function Comment({
   editReply,
   deleteComment,
   deleteReply,
-  parentId,
   children,
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const [isOwned, setIsOwned] = useState(false);
-  const { id, score, username, created_at, content, replyingTo, user } =
-    commentData;
+  const { id, score, created_at, content, replyingTo, user } = commentData;
   const [currentUser] = useContext(UserContext);
   const [modalOpen, setModalOpen] = useState(false);
   const [edit, setEdit] = useState(false);

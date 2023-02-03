@@ -6,6 +6,11 @@ body {
   margin: 0;
   font-family: 'Rubik';
   background-color: hsl(228, 33%, 97%);
+  height: 100%;
+}
+
+#__next {
+  height: 100%;
 }
 
 a {
