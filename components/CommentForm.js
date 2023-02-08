@@ -1,4 +1,5 @@
-import { useState, useContext } from 'react';
+import { text } from '@fortawesome/fontawesome-svg-core';
+import { useState, useContext, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import Avatar from './Avatar';
 import Icon from './Icon';
@@ -6,6 +7,7 @@ import Icon from './Icon';
 export default function CommentForm({ type, id, onSubmission }) {
   const [content, setContent] = useState('');
   const [error, setError] = useState(false);
+  const commentTextarea = useRef(null);
 
   function handleClick() {
     if (content.trim() === '') {
@@ -17,6 +19,12 @@ export default function CommentForm({ type, id, onSubmission }) {
     setError(false);
   }
 
+  useEffect(() => {
+    commentTextarea.current.style.height = '49px';
+    const height = commentTextarea.current.scrollHeight;
+    commentTextarea.current.style.height = `${height}px`;
+  }, [content]);
+
   function handleChange(event) {
     setContent(event.target.value);
   }
@@ -26,9 +34,9 @@ export default function CommentForm({ type, id, onSubmission }) {
       <FormStyled error={error}>
         <Avatar size="small" img={'./images/avatars/image-juliusomo.png'} />
         <TextareaStyled
+          ref={commentTextarea}
           name={`comment_name_${id}`}
           id={`comment_${id}`}
-          rows="1"
           placeholder={`Add a ${type}...`}
           value={content}
           onChange={handleChange}
@@ -46,30 +54,31 @@ export default function CommentForm({ type, id, onSubmission }) {
 
 const FormStyled = styled.div`
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.1rem 0.5rem;
-  border-radius: 3rem;
-  background-color: #fff;
   width: 100%;
-  position: relative;
   box-shadow: 0px 4px 5px 0px rgba(160, 160, 160, 0.5);
   border: 2px solid ${(props) => (props.error ? 'red' : 'transparent')};
-  svg {
-    width: 1.5rem;
-    fill: #555;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  gap: 1rem;
+  img {
+    margin-top: 0.5rem;
   }
 `;
 
 const ButtonStyled = styled.button`
   background-color: transparent;
-  all: unset;
   color: #fff;
   border: 0;
-  line-height: 0.5rem;
   transition: opacity 0.2s ease;
+  margin-top: 0.85rem;
+  margin-bottom: auto;
+  svg {
+    width: 1.5rem;
+    fill: #000;
+  }
   &:hover {
-    opacity: 0.5;
+    opacity: 0.8;
   }
 `;
 
@@ -78,6 +87,17 @@ const TextareaStyled = styled.textarea`
   border-radius: 0.5rem;
   padding: 1rem;
   border: 2px solid transparent;
+  resize: none;
+  transition: height 0.1s ease;
+  line-height: 1rem;
+  &::-webkit-scrollbar {
+    width: 0px;
+  }
+  &::placeholder {
+    font-family: 'Rubik';
+    font-size: 0.9rem;
+    color: #555;
+  }
   &:focus {
     outline: none;
     border: 2px solid hsl(238, 40%, 52%);

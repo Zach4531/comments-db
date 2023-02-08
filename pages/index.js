@@ -125,6 +125,7 @@ export default function Home({ allComments }) {
             addReply={addReply}
             editComment={editComment}
             deleteComment={deleteComment}
+            parentID={comment.id}
           >
             {comment.replies.length > 0 && (
               <ReplyWrapperStyled>

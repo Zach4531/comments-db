@@ -19,6 +19,7 @@ export default function Comment({
   editReply,
   deleteComment,
   deleteReply,
+  parentID,
   children,
 }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -53,7 +54,7 @@ export default function Comment({
   }
 
   function submitReply(content) {
-    addReply(content, parentId, username);
+    addReply(content, parentID, user.username);
     setIsVisible(false);
   }
 
@@ -63,7 +64,7 @@ export default function Comment({
   }
 
   function submitReplyEdit(content) {
-    editReply(content, id, parentId);
+    editReply(content, id, parentID);
     setEdit(false);
   }
 
@@ -139,6 +140,7 @@ const CommentContentStyled = styled.div`
 
 const CommentBodyStyled = styled.div`
   padding-top: 1rem;
+  overflow-wrap: anywhere;
   p {
     opacity: 0.7;
     display: inline;
