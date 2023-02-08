@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
 import styled from 'styled-components';
 import Avatar from './Avatar';
+import Icon from './Icon';
 
 export default function CommentForm({ type, id, onSubmission }) {
   const [content, setContent] = useState('');
@@ -22,19 +23,18 @@ export default function CommentForm({ type, id, onSubmission }) {
 
   return (
     <>
-      <FormStyled>
-        <Avatar size="medium" img={'./images/avatars/image-juliusomo.png'} />
+      <FormStyled error={error}>
+        <Avatar size="small" img={'./images/avatars/image-juliusomo.png'} />
         <TextareaStyled
           name={`comment_name_${id}`}
           id={`comment_${id}`}
-          rows="5"
+          rows="1"
           placeholder={`Add a ${type}...`}
           value={content}
           onChange={handleChange}
-          error={error}
         ></TextareaStyled>
         <ButtonStyled type="submit" onClick={handleClick}>
-          {type === 'comment' ? 'Submit' : 'Reply'}
+          <Icon icon="send" />
         </ButtonStyled>
       </FormStyled>
       {error && (
@@ -46,37 +46,30 @@ export default function CommentForm({ type, id, onSubmission }) {
 
 const FormStyled = styled.div`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
-  padding: 1.2rem;
-  border-radius: 0.5rem;
-  background-color: white;
+  padding: 0.1rem 0.5rem;
+  border-radius: 3rem;
+  background-color: #fff;
   width: 100%;
   position: relative;
-  @media (max-width: 650px) {
-    padding-bottom: 6rem;
-    img {
-      position: absolute;
-      bottom: 1rem;
-      left: 1rem;
-    }
+  box-shadow: 0px 4px 5px 0px rgba(160, 160, 160, 0.5);
+  border: 2px solid ${(props) => (props.error ? 'red' : 'transparent')};
+  svg {
+    width: 1.5rem;
+    fill: #555;
   }
 `;
 
 const ButtonStyled = styled.button`
-  background-color: hsl(238, 40%, 52%);
+  background-color: transparent;
+  all: unset;
   color: #fff;
   border: 0;
-  padding: 1rem;
-  border-radius: 0.5rem;
+  line-height: 0.5rem;
   transition: opacity 0.2s ease;
   &:hover {
     opacity: 0.5;
-  }
-  @media (max-width: 650px) {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
   }
 `;
 
@@ -84,7 +77,7 @@ const TextareaStyled = styled.textarea`
   flex: 1;
   border-radius: 0.5rem;
   padding: 1rem;
-  border: 2px solid ${(props) => (props.error ? 'red' : '#ccc')};
+  border: 2px solid transparent;
   &:focus {
     outline: none;
     border: 2px solid hsl(238, 40%, 52%);

@@ -9,9 +9,9 @@ export default function Avatar({ size, img }) {
   };
 
   const sizes = {
-    xsmall: '25px',
-    small: '45px',
-    medium: '55px',
+    xsmall: '30px',
+    small: '35px',
+    medium: '50px',
   };
 
   return (
